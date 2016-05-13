@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat Client</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript">
+        window.onload=function(){
+                var uri=document.getElementById("uri");
+                var connect=document.getElementById("connect");
+                var disconnect=document.getElementById("disconnect");
+                var textField=document.getElementById("textField");
+                var send=document.getElementById("send");
+                var log=document.getElementById("log");
+                function print(text) {
+                    log.innerHTML = (new Date).getTime() + ": " + text + log.innerHTML;
+                }
+				var ws;
+                connect.onclick=function(){
+					uri.disabled="disabled";
+					connect.disabled="disabled";
+                    disconnect.disabled="";
+					send.disabled="";
+                    ws = new WebSocket(uri.value);
+                    ws.onopen = function() {
+                        print("[onopen]\n");
+                    }
+                    ws.onmessage = function(e) {
+                        print("[onmessage] '" + e.data + "'\n");
+                    }
+                    ws.onclose = function() {
+                        print("[onclose]\n");
+						uri.disabled="";
+                        connect.disabled="";
+                        disconnect.disabled="disabled";
+                        ws = null;
+                    }
+                };
+                disconnect.onclick=function(){
+                    if (ws) {
+                        ws.close();
+                        ws = null;
+                    }
+                };
+                send.onclick=function(){
+                    if (ws&&textField.value.length>0) {
+                        ws.send(textField.value);
+                        print("[send] '" + textField.value + "'\n");
+                        textField.value = "";
+                        textField.focus();
+                    }
+                };
+        };
+    </script>
+</head>
+<body>
+<input type="text" id="uri" value="ws://172.16.0.119:1984" style="width:200px;">
+<input type="button" id="connect" value="Connect">
+<input type="button" id="disconnect" value="Disconnect" disabled="disabled">
+<br>
+<input type="text" id="textField" value="" style="width:200px;">
+<input type="button" id="send" value="Send" disabled="disabled">
+<br>
+<textarea id="log" rows="30" cols="100" style="font-family:monospace; color:red;"></textarea>
+<br>
+</body>
+</html>
